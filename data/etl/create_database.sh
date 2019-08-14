@@ -1,10 +1,16 @@
 #! /bin/bash
 
+# Import dump database in MY SQL and export it from there to Postgres.
+# This is needed as the dump file was created for MYSQL and if it is 
+# imported directly in Postgres, fails. 
+# It is also prefered to worked in Postgres as it supports schemas,
+# MYSQL doesnt.
+
 #########################################
 #### Get Credentials 
 #########################################
 
-# User and Pass for MYSQL
+# User and Pass for MYSQL and postgres
 . users_pass.txt
 
 sqluser=$USERSQL
@@ -28,7 +34,7 @@ CREATE database if not exists donaronline_boosted;
 
 -- Import Data into database
 USE donaronline_boosted;
-source /Users/mac/Documents/donaronline_database.sql
+source /Users/mac/Documents/Wingu/donaronline/trabajo_final_boosteado/churn_donations/data/sql/donaronline_database.sql
 
 -- Exit SQL shell
 exit 
@@ -44,10 +50,7 @@ echo 'Import database in SQL - Finished'
 ##### Create empty db in Postgres
 ##########################################
 
-User and Pass for MYSQL
-. users_pass.txt
-
-echo 'Connecting to MYSQL...'
+echo 'Connecting to Postgres...'
 
 Initiate PSQL
 PGPASSWORD=$postgrespass psql -U $postgresuser << EOF
