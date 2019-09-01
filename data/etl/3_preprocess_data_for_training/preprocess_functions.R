@@ -27,8 +27,6 @@ input_missings <- function(variable,inputation) {
   }
 }
 
-
-
 # Preprocess function
 apply_preprocess <- function(dataframe){
   #drop variables
@@ -40,7 +38,6 @@ apply_preprocess <- function(dataframe){
   # input missing values - 0
   dataframe[cols_input_0] <- lapply(dataframe[cols_input_0],input_missings, inputation= 0)
 }
-
 
 #Columns to change
   col_drop <- c( 'donor_id'

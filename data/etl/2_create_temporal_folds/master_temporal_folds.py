@@ -6,7 +6,7 @@ Created on Sun Aug  4 19:56:42 2019
 @author: Maria Ines Aran
 """
 import os
-os.chdir('/Users/mac/Documents/Wingu/donaronline/trabajo_final_boosteado/churn_donations/data/etl')
+os.chdir('/Users/mac/Documents/Wingu/donaronline/trabajo_final_boosteado/churn_donations/data/etl/2_create_temporal_folds')
 from create_dates import define_dates
 from create_fold import create_fold
 from tqdm import tqdm
