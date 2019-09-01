@@ -23,6 +23,7 @@ library(ROSE)
 library(InformationValue)
 library(MLmetrics)
 library(pROC)
+library(here)
 
 # config
 options(scipen=999)
@@ -35,12 +36,12 @@ options(rf.cores = detectCores() - 2,
 
 #####################################################################################################################################
 ## IMPORT PREPROCES
-source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","preprocess.R"))
-
+#source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess.R"))
+source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R"))
 #####################################################################################################################################
 # SET THE CONFIG
 train_fold = train_fold # from preprocess
-test_fold = train_fold
+test_fold = test_fold
 algorithm = 'logistic_regression'
 #####################################################################################################################################
                                     ## Logistic Regression 
@@ -133,7 +134,7 @@ dbWriteTable(mydb,
 # Model
 # save the model to disk
 saveRDS(logit_model,
-        paste("Wingu/donaronline/trabajo_final_boosteado/churn_donations/models/pickles/"
+        here::here(paste("models/pickles/"
               ,algorithm
               ,".rds"
-              , sep=''))
+              , sep='')))

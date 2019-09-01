@@ -1,9 +1,9 @@
 #libraries
 library(RPostgreSQL)
-library(here)
 
 # import funcions
-source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","preprocess_functions.R"))
+#source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
+source(here::here("data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
 
 #####################################################################################################################################
 # import data
@@ -19,6 +19,7 @@ mydb <- dbConnect(dbDriver("PostgreSQL"),
                   port = '5432')
 #import commands from bash
 args <- commandArgs()
+print(args)
 train_fold = args[6]
 test_fold = args[7]
 

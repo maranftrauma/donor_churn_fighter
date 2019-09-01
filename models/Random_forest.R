@@ -42,12 +42,12 @@ options(rf.cores = detectCores() - 2,
 
 #####################################################################################################################################
                                                       ## IMPORT PREPROCES
-source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","preprocess.R"))
+source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R"))
 
 #####################################################################################################################################
 # SET THE CONFIG
 train_fold = train_fold # from preprocess
-test_fold = train_fold
+test_fold = test_fold
 algorithm = 'random_forest'
 
 #####################################################################################################################################
@@ -120,7 +120,7 @@ cm <- confusionMatrix(test.complete$churn,predValid,threshold = optCutOff)
 
 # ROC
 rf.roc<-roc(test.complete$churn,predValid)
-plot(rf.roc, xlim=c(1.0,0.0), asp = NA)
+#plot(rf.roc, xlim=c(1.0,0.0), asp = NA)
 auc(rf.roc)
 threshold <- optCutOff
 
@@ -185,9 +185,9 @@ dbWriteTable(mydb,
 # Model
 # save the model to disk
 saveRDS(rf_model,
-        paste("Wingu/donaronline/trabajo_final_boosteado/churn_donations/models/pickles/"
+        here::here(paste("models/pickles/"
               ,algorithm
               ,".rds"
-              , sep=''))
+              , sep='')))
 
 
