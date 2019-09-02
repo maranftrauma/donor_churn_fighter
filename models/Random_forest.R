@@ -1,8 +1,13 @@
 # This is code to develop a random survival model forest to predict donors churn
 # Code developed by Maria Ines Aran.
 
+
 #####################################################################################################################################
                                                     # LIBRARIES AND CONFIGURATION 
+
+# Save errors and warnings in log file
+warning_file = file("RScriptErrors_RanfomForest.log", open = "wt")
+sink(warning_file, type = "message")
 
 # Libraries
 library(survival, quietly = TRUE)
@@ -40,8 +45,11 @@ detectCores()
 options(rf.cores = detectCores() - 2, 
         mc.cores = detectCores() - 2)  ## Cores for parallel processing
 
+
 #####################################################################################################################################
                                                       ## IMPORT PREPROCES
+#run from Studio:source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess.R"))
+#run from visual code:
 source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R"))
 
 #####################################################################################################################################
@@ -49,6 +57,10 @@ source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R")
 train_fold = train_fold # from preprocess
 test_fold = test_fold
 algorithm = 'random_forest'
+hyperparameter_1 = as.numeric(hyperparameter_1)
+hyperparameter_2 = as.numeric(hyperparameter_2)
+hyperparameter_3 = as.numeric(hyperparameter_3)
+hyperparameters = paste('mtry:',hyperparameter_1,'ntree:', hyperparameter_2,'nodesize:' ,hyperparameter_3)
 
 #####################################################################################################################################
                                                       ## RANDOM FOREST 
@@ -58,38 +70,16 @@ train.complete <- na.omit(train)
 # Random Search
 train.complete$churn <- as.factor(train.complete$churn)
 
-#mtry tunning
-#control <- trainControl(method="repeatedcv", number=10, repeats=3, search="random")
-#seed <- 14
-#set.seed(seed)
-#metric <- "Kappa"
-#mtry <- sqrt(ncol(train.complete))
-#rf_random <- train(CHURN~., 
-#                   data=train.complete, method="rf", metric=metric, tuneLength=30, trControl=control)
-#print(rf_random)
-#plot(rf_random, col = "black", frame = FALSE, type='l', xaxt='n')
-
-
-# Grid Search
-#mtry tunning
-#control <- trainControl(method="repeatedcv", number=10, repeats=3, search="grid")
-#set.seed(14)
-#tunegrid <- expand.grid(.mtry=c(180:200))
-#metric <- "Kappa"
-#rf_gridsearch <- train(CHURN~., 
-#                       data=train.complete, method="rf", metric=metric, tuneGrid=tunegrid, trControl=control)
-#print(rf_gridsearch)
-#plot(rf_gridsearch, col = "black", frame = FALSE, type='l', xlab = 'Selected Predictors')
-
 # Model
 train.complete$churn <- as.numeric(train.complete$churn)
 rf_model <- randomForest(churn ~ ., 
-                       mtry = 186,
-                       ntree = 500,
-                       nodesize = 4, 
+                       mtry = hyperparameter_1,
+                       ntree = hyperparameter_2,
+                       nodesize = hyperparameter_3, 
                        data = train.complete, 
                        importance = TRUE,
-                       replaces = TRUE)
+                       replaces = TRUE,
+                       seed = 14)
 
 # Print model
 rf_model
@@ -156,8 +146,8 @@ feature.importance <- data.frame(importance(rf_model))
                                                                   ## OUTPUT
 ## OUTPUT
 # Prediction
-predictions_to_db <- cbind(algorithm = c(algorithm),fold = c(test_fold), prediction, created_on = Sys.time())
-metric_to_db <- cbind(algorithm = c(algorithm), fold = c(test_fold), metrics, created_on = Sys.time())
+predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), prediction, created_on = Sys.time())
+metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), metrics, created_on = Sys.time())
 
 # Write to database
 mydb <- dbConnect(dbDriver("PostgreSQL"), 
@@ -183,11 +173,11 @@ dbWriteTable(mydb,
              append= TRUE)
 
 # Model
-# save the model to disk
-saveRDS(rf_model,
-        here::here(paste("models/pickles/"
-              ,algorithm
-              ,".rds"
-              , sep='')))
+# save the model to disk - only final model
+#saveRDS(rf_model,
+#        here::here(paste("models/pickles/"
+#              ,algorithm
+#              ,".rds"
+#              , sep='')))
 
 

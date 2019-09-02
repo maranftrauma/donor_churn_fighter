@@ -2,7 +2,9 @@
 library(RPostgreSQL)
 
 # import funcions
+#to run from rstudio :
 #source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
+#run from visual code
 source(here::here("data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
 
 #####################################################################################################################################
@@ -19,9 +21,12 @@ mydb <- dbConnect(dbDriver("PostgreSQL"),
                   port = '5432')
 #import commands from bash
 args <- commandArgs()
-print(args)
 train_fold = args[6]
 test_fold = args[7]
+hyperparameter_1 = args[8]
+hyperparameter_2 = args[9]
+hyperparameter_3 = args[10]
+hyperparameter_4 = args[11]
 
 query <- paste('select * from folds.train_fold_',train_fold,' where collected_amount_approved > 0', sep='')
 
