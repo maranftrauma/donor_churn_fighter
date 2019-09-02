@@ -51,11 +51,14 @@ apply_preprocess <- function(dataframe){
                  ,'donor_update_date' 
                  ,'tags_religion'
                  ,'donation_last_payment_method_used')
+  
   cols_numeric <- c('donor_version_last_update')
+  
   cols_input_9999 <- c('payment_diff_days_approved_vs_rejected'
                        , 'donor_version_last_update'
                        , 'campaign_end_ym'
                        , 'payment_diff_days_median_approved_vs_rejected')
+  
   cols_input_0 <- c('users_camp_q_users' 
                     , 'users_camp_q_login' 
                     , 'shares_camp_q_shares' 

@@ -1,13 +1,15 @@
-# this is code to develop a random survival model forest to predict donors churn
-# code developed by maria ines aran.
+# This is code to develop a random survival model forest to predict donors churn
+# Code developed by Maria Ines Aran.
 
 
 #####################################################################################################################################
-# libraries and configuration 
-warning_file = file("RScriptErrors_LogisticRegression.log", open = "wt")
+                                                    # LIBRARIES AND CONFIGURATION 
 
-sink(warning_file, type = "message", append = TRUE)
-# libraries
+# Save errors and warnings in log file
+warning_file = file("RScriptErrors_Extratree.log", open = "wt")
+sink(warning_file, type = "message")
+
+# Libraries
 library(caret, quietly = TRUE)
 library(glmnet, quietly = TRUE)
 library(rms, quietly = TRUE)
@@ -26,6 +28,8 @@ library(InformationValue)
 library(MLmetrics)
 library(pROC)
 library(here)
+library(extraTrees)
+
 
 # config
 options(scipen=999)
@@ -36,66 +40,84 @@ detectCores()
 options(rf.cores = detectCores() - 2, 
         mc.cores = detectCores() - 2)  ## Cores for parallel processing
 
+
 #####################################################################################################################################
-## IMPORT PREPROCES
+                                                      ## IMPORT PREPROCES
+#run from Studio:
 #source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess.R"))
+#run from visual code:
 source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R"))
+
 #####################################################################################################################################
 # SET THE CONFIG
 train_fold = train_fold # from preprocess
 test_fold = test_fold
-algorithm = 'logistic_regression'
+algorithm = 'extra_trees'
+hyperparameter_1 = as.numeric(hyperparameter_1)
+hyperparameter_2 = as.numeric(hyperparameter_2)
+hyperparameter_3 = as.numeric(hyperparameter_3)
+hyperparameter_4 = as.numeric(hyperparameter_4)
+hyperparameters = paste('mtry:',hyperparameter_1,'ntree:', hyperparameter_2,'nodesize:' ,hyperparameter_3, 'numRandomCuts:' ,hyperparameter_4)
+
 #####################################################################################################################################
-                                    ## Logistic Regression 
-# only complete cases
+                                                      ## RANDOM FOREST 
+# Only complete cases
 train.complete <- na.omit(train)
 
+# Random Search
 train.complete$churn <- as.factor(train.complete$churn)
 
 # Model
-train$churn <- as.numeric(train$churn)
-logit_model <- glm(churn ~ ., 
-                   data = train.complete, 
-                   family = "binomial")
+train.complete$churn <- as.numeric(train.complete$churn)
+x = train.complete[ ,!(colnames(train.complete) == "churn")]
+y = train.complete$churn
+et_model <- extraTrees(x = x,
+                       y = y,
+                       mtry = hyperparameter_1,
+                       ntree = hyperparameter_2,
+                       nodesize = hyperparameter_3, 
+                       numRandomCuts = hyperparameter_4)
 
 # Print model
-summary(logit_model)
-#plot(logit_model)
+et_model
+#plot(et_model)
 
 # Predicting on train set
-predTrain <- predict(logit_model, train.complete, "response")
+predTrain <- predict(et_model, x)
 
 # Optimal Cutoff
-optCutOff <- optimalCutoff(train.complete$churn, predTrain, optimiseFor = "Ones")
+optCutOff <- optimalCutoff(y, predTrain, optimiseFor = "Ones")
 
 # Confusion Matrix - Train
-cm.train <- confusionMatrix(train.complete$churn, predTrain, threshold = optCutOff) 
-#paste ('Optimal CutOff = ',optCutOff)
-#cm.train
+cm.train <- confusionMatrix(y, predTrain, threshold = optCutOff) 
+paste ('Optimal CutOff = ',round(optCutOff,2))
+cm.train
 
 # Apply on Test Set
 test.complete <- na.omit(test)
 
 # Predicting on Validation set
-predValid <- predict(logit_model, newdata = test.complete)
+x_test = test.complete[ ,!(colnames(test.complete) == "churn")]
+y_test =test.complete$churn
+predValid <- predict(et_model, newdata = x_test)
 prediction <- data.frame(predValid, test.complete$churn)
 
 # Performance metrics on test set
 # Confusion Matrix
-cm <- confusionMatrix(test.complete$churn,predValid,threshold = optCutOff)
+cm <- confusionMatrix(y_test,predValid,threshold = optCutOff)
 #cm
 
 # ROC
-rf.roc<-roc(test.complete$churn,predValid)
+rf.roc<-roc(y_test,predValid)
 #plot(rf.roc, xlim=c(1.0,0.0), asp = NA)
 auc(rf.roc)
 threshold <- optCutOff
 
 #Sencitivity, precision and F1-Score
-sensitivity.result <- sensitivity(test.complete$churn,predValid, threshold = threshold)
-precision.result <- precision(test.complete$churn,predValid, threshold = threshold)
+sensitivity.result <- sensitivity(y_test,predValid, threshold = threshold)
+precision.result <- precision(y_test,predValid, threshold = threshold)
 F1 <- (2 * precision.result * sensitivity.result) / (precision.result + sensitivity.result)
-#paste ('Sensitivity with optimal threshold = ', round(sensitivity.result,3), 'threshold = ',threshold )
+#paste ('Sensitivity with optimal threshold = ', round(sensitivity.result,3), 'threshold = ', threshold)
 #paste ('Precision with optimal threshold = ', round(precision.result,3), 'threshold = ', threshold)
 #paste('F1-Score = ',F1)
 #cm
@@ -103,14 +125,12 @@ F1 <- (2 * precision.result * sensitivity.result) / (precision.result + sensitiv
 metrics <- data.frame(cbind(threshold,sensitivity.result,precision.result,F1,auc(rf.roc)))
 names(metrics) <- c("threshold","sencitivity", "precision","f1","auc")
 
-#varImp(logit_model, scale = FALSE)
-
 #####################################################################################################################################
-## OUTPUT
+                                                                  ## OUTPUT
 ## OUTPUT
 # Prediction
-predictions_to_db <- cbind(algorithm = c(algorithm),fold = c(test_fold), prediction, created_on = Sys.time())
-metric_to_db <- cbind(algorithm = c(algorithm), fold = c(test_fold), metrics, created_on = Sys.time())
+predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), prediction, created_on = Sys.time())
+metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), metrics, created_on = Sys.time())
 
 # Write to database
 mydb <- dbConnect(dbDriver("PostgreSQL"), 
@@ -137,8 +157,10 @@ dbWriteTable(mydb,
 
 # Model
 # save the model to disk - only final model
-#saveRDS(logit_model,
+#saveRDS(et_model,
 #        here::here(paste("models/pickles/"
 #              ,algorithm
 #              ,".rds"
 #              , sep='')))
+
+

@@ -1,0 +1,261 @@
+
+Attaching package: ‘caret’
+
+The following object is masked from ‘package:survival’:
+
+    cluster
+
+Warning message:
+In as.POSIXlt.POSIXct(Sys.time()) :
+  unknown timezone 'zone/tz/2019b.1.0/zoneinfo/Europe/London'
+Loaded glmnet 2.0-16
+
+Warning messages:
+1: package ‘glmnet’ was built under R version 3.4.4 
+2: package ‘Matrix’ was built under R version 3.4.2 
+
+Attaching package: ‘Hmisc’
+
+The following objects are masked from ‘package:base’:
+
+    format.pval, units
+
+
+Attaching package: ‘SparseM’
+
+The following object is masked from ‘package:base’:
+
+    backsolve
+
+Warning messages:
+1: package ‘rms’ was built under R version 3.4.3 
+2: package ‘Hmisc’ was built under R version 3.4.3 
+Warning message:
+package ‘doParallel’ was built under R version 3.4.2 
+
+ randomForestSRC 2.7.0 
+ 
+ Type rfsrc.news() to see new features, changes, and bug fixes. 
+ 
+
+
+Attaching package: ‘randomForestSRC’
+
+The following object is masked from ‘package:Hmisc’:
+
+    impute
+
+Warning message:
+package ‘randomForestSRC’ was built under R version 3.4.4 
+randomForest 4.6-12
+Type rfNews() to see new features/changes/bug fixes.
+
+Attaching package: ‘randomForest’
+
+The following object is masked from ‘package:ggplot2’:
+
+    margin
+
+
+Attaching package: ‘ggRandomForests’
+
+The following object is masked from ‘package:randomForestSRC’:
+
+    partial.rfsrc
+
+Loading required package: DBI
+Loading required package: colorspace
+Loading required package: grid
+Loading required package: data.table
+VIM is ready to use. 
+ Since version 4.0.0 the GUI is in its own package VIMGUI.
+
+          Please use the package to use the new (and old) GUI.
+
+Suggestions and bug-reports can be submitted at: https://github.com/alexkowa/VIM/issues
+
+Attaching package: ‘VIM’
+
+The following object is masked from ‘package:datasets’:
+
+    sleep
+
+Warning message:
+package ‘data.table’ was built under R version 3.4.2 
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:data.table’:
+
+    between, first, last
+
+The following object is masked from ‘package:randomForest’:
+
+    combine
+
+The following object is masked from ‘package:MASS’:
+
+    select
+
+The following objects are masked from ‘package:Hmisc’:
+
+    src, summarize
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+Warning message:
+package ‘dplyr’ was built under R version 3.4.2 
+
+Attaching package: ‘purrr’
+
+The following object is masked from ‘package:data.table’:
+
+    transpose
+
+The following object is masked from ‘package:randomForestSRC’:
+
+    partial
+
+The following objects are masked from ‘package:foreach’:
+
+    accumulate, when
+
+The following object is masked from ‘package:caret’:
+
+    lift
+
+Warning message:
+package ‘purrr’ was built under R version 3.4.2 
+
+Attaching package: ‘DMwR’
+
+The following object is masked from ‘package:VIM’:
+
+    kNN
+
+
+Attaching package: ‘tidyr’
+
+The following object is masked from ‘package:Matrix’:
+
+    expand
+
+Warning message:
+package ‘tidyr’ was built under R version 3.4.2 
+Loading required package: prodlim
+
+Attaching package: ‘pec’
+
+The following object is masked from ‘package:randomForestSRC’:
+
+    cindex
+
+The following object is masked from ‘package:caret’:
+
+    R2
+
+Warning message:
+package ‘pec’ was built under R version 3.4.4 
+------------------------------------------------------------------------------
+You have loaded plyr after dplyr - this is likely to cause problems.
+If you need functions from both plyr and dplyr, please load plyr first, then dplyr:
+library(plyr); library(dplyr)
+------------------------------------------------------------------------------
+
+Attaching package: ‘plyr’
+
+The following object is masked from ‘package:DMwR’:
+
+    join
+
+The following object is masked from ‘package:purrr’:
+
+    compact
+
+The following objects are masked from ‘package:dplyr’:
+
+    arrange, count, desc, failwith, id, mutate, rename, summarise,
+    summarize
+
+The following objects are masked from ‘package:Hmisc’:
+
+    is.discrete, summarize
+
+Loaded ROSE 0.0-3
+
+Loading required package: ggpubr
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+
+Attaching package: ‘ggpubr’
+
+The following object is masked from ‘package:plyr’:
+
+    mutate
+
+Warning messages:
+1: package ‘survminer’ was built under R version 3.4.4 
+2: package ‘ggpubr’ was built under R version 3.4.4 
+
+Attaching package: ‘InformationValue’
+
+The following objects are masked from ‘package:caret’:
+
+    confusionMatrix, precision, sensitivity, specificity
+
+
+Attaching package: ‘MLmetrics’
+
+The following objects are masked from ‘package:caret’:
+
+    MAE, RMSE
+
+The following object is masked from ‘package:base’:
+
+    Recall
+
+Type 'citation("pROC")' for a citation.
+
+Attaching package: ‘pROC’
+
+The following object is masked from ‘package:colorspace’:
+
+    coords
+
+The following object is masked from ‘package:glmnet’:
+
+    auc
+
+The following objects are masked from ‘package:stats’:
+
+    cov, smooth, var
+
+Warning message:
+package ‘pROC’ was built under R version 3.4.4 
+here() starts at /Users/mac/Documents/Wingu/donaronline/trabajo_final_boosteado/churn_donations
+
+Attaching package: ‘here’
+
+The following object is masked from ‘package:plyr’:
+
+    here
+
+Warning message:
+In randomForest.default(m, y, ...) :
+  The response has five or fewer unique values.  Are you sure you want to do regression?
