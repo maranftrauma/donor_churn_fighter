@@ -7,6 +7,7 @@
 warning_file = file("RScriptErrors_LogisticRegression.log", open = "wt")
 
 sink(warning_file, type = "message", append = TRUE)
+
 # libraries
 library(caret, quietly = TRUE)
 library(glmnet, quietly = TRUE)
@@ -44,7 +45,9 @@ source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R")
 # SET THE CONFIG
 train_fold = train_fold # from preprocess
 test_fold = test_fold
+cohort = cohort
 algorithm = 'logistic_regression'
+hyperparameters = 'default'
 #####################################################################################################################################
                                     ## Logistic Regression 
 # only complete cases
@@ -77,8 +80,10 @@ cm.train <- confusionMatrix(train.complete$churn, predTrain, threshold = optCutO
 test.complete <- na.omit(test)
 
 # Predicting on Validation set
-predValid <- predict(logit_model, newdata = test.complete)
-prediction <- data.frame(predValid, test.complete$churn)
+predValid <- predict(logit_model, newdata = test.complete, type="response")
+prediction <- data.frame(round(predValid,2), test.complete$churn)
+colnames(prediction)[colnames(prediction)=="round.predValid..2."] <- "prediction"
+colnames(prediction)[colnames(prediction)=="test.complete.churn"] <- "real"
 
 # Performance metrics on test set
 # Confusion Matrix
@@ -109,8 +114,8 @@ names(metrics) <- c("threshold","sencitivity", "precision","f1","auc")
 ## OUTPUT
 ## OUTPUT
 # Prediction
-predictions_to_db <- cbind(algorithm = c(algorithm),fold = c(test_fold), prediction, created_on = Sys.time())
-metric_to_db <- cbind(algorithm = c(algorithm), fold = c(test_fold), metrics, created_on = Sys.time())
+predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),cohort = c(cohort),test_fold = c(test_fold), prediction, created_on = Sys.time())
+metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),cohort = c(cohort),test_fold = c(test_fold), metrics, created_on = Sys.time())
 
 # Write to database
 mydb <- dbConnect(dbDriver("PostgreSQL"), 
