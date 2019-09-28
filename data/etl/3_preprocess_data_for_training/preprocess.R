@@ -1,5 +1,6 @@
 #libraries
 library(RPostgreSQL)
+library(VIM)
 
 # import funcions
 #to run from rstudio :
@@ -21,14 +22,16 @@ mydb <- dbConnect(dbDriver("PostgreSQL"),
                   port = '5432')
 #import commands from bash
 args <- commandArgs()
-train_fold = args[6]
-test_fold = args[7]
+train_fold =  args[6]
+test_fold =  args[7]
 hyperparameter_1 = args[8]
 hyperparameter_2 = args[9]
 hyperparameter_3 = args[10]
 hyperparameter_4 = args[11]
+cohort = 'large'
 
-query <- paste('select * from folds.train_fold_',train_fold,' where collected_amount_approved > 0', sep='')
+#query <- paste('select * from folds.train_fold_',train_fold,' where collected_amount_approved > 0', sep='')
+query <- paste('select * from folds.train_fold_',train_fold, sep='')
 
 train <- dbSendQuery(mydb, query)
 train <- fetch(train, n=-1)
@@ -38,7 +41,9 @@ rd <- dbSendQuery(mydb, "select card from cleaned.cards")
 df_cards <- fetch(rd, n=-1)
 
 #test
-query <- paste('select * from folds.train_fold_',test_fold,' where collected_amount_approved > 0', sep='')
+#query <- paste('select * from folds.train_fold_',test_fold,' where collected_amount_approved > 0', sep='')
+query <- paste('select * from folds.train_fold_',test_fold, sep='')
+
 rs <- dbSendQuery(mydb, query)
 test <- fetch(rs, n=-1)
 
@@ -61,11 +66,16 @@ test[cols_input_9999] <- lapply(test[cols_input_9999],input_missings, inputation
 # input missing values - 0
 train[cols_input_0] <- lapply(train[cols_input_0],input_missings, inputation= 0)
 test[cols_input_0] <- lapply(test[cols_input_0],input_missings, inputation= 0)
+# if column is full of NA , drop
+cond <- sapply(train, function(x)all(is.na(x)))
+mask <- !(cond)
+train <- train[,mask,drop=F]
+test <- test[,mask,drop=F]
 
 # Missing data check
-#mice_plot <- aggr(df, col=c('navyblue','yellow'),
+#mice_plot <- aggr(train, col=c('navyblue','yellow'),
 #                  numbers=TRUE, sortVars=TRUE,
-#                  labels=names(df), cex.axis=.7,
+#                  labels=names(train), cex.axis=.7,
 #                  gap=3, ylab=c("Missing data","Pattern"))
 
 #####################################################################################################################################

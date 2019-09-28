@@ -2,18 +2,16 @@ import subprocess
 import itertools as it
 from iteration_utilities import deepflatten
 
-folds = range(29,32)
+folds = range(1,32)
 
 # Build subprocess command
 command = 'Rscript'
 path2script = '../Logistic_regression.R'
 
-#hyperparameters : {'penalty': ['l1','l2'], 'C': [0.00001,0.001,0.1,1,10]}
-
-hyperparameters={'penalty': ['l1','l2'], 'C': ['1','10']}
+hyperparameters={'penalty': ['l1'], 'C': ['1']}
 
 def generate_hyperparameters_combination(hyperparameters_dictionary):
-    all_hyper = sorted(hyperparameters)
+    all_hyper = list(hyperparameters.keys())
     combinations = it.product(*(hyperparameters[hyper] for hyper in all_hyper))
     return [list(comb) for comb in list(combinations)]
 

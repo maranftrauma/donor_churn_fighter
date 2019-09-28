@@ -57,6 +57,7 @@ source(here::here("data", "etl","3_preprocess_data_for_training","preprocess.R")
 train_fold = train_fold # from preprocess
 test_fold = test_fold
 algorithm = 'random_forest'
+cohort = cohort
 hyperparameter_1 = as.numeric(hyperparameter_1)
 hyperparameter_2 = as.numeric(hyperparameter_2)
 hyperparameter_3 = as.numeric(hyperparameter_3)
@@ -100,8 +101,10 @@ cm.train
 test.complete <- na.omit(test)
 
 # Predicting on Validation set
-predValid <- predict(rf_model, newdata = test.complete)
-prediction <- data.frame(predValid, test.complete$churn)
+predValid <- predict(rf_model, newdata = test.complete, type="response")
+prediction <- data.frame(round(predValid,2), test.complete$churn)
+colnames(prediction)[colnames(prediction)=="round.predValid..2."] <- "prediction"
+colnames(prediction)[colnames(prediction)=="test.complete.churn"] <- "real"
 
 # Performance metrics on test set
 # Confusion Matrix
@@ -115,8 +118,8 @@ auc(rf.roc)
 threshold <- optCutOff
 
 #Sencitivity, precision and F1-Score
-sensitivity.result <- sensitivity(test.complete$churn,predValid, threshold = threshold)
-precision.result <- precision(test.complete$churn,predValid, threshold = threshold)
+sensitivity.result <- sensitivity(test.complete$churn,predValid, threshold = optCutOff)
+precision.result <- precision(test.complete$churn,predValid, threshold = optCutOff)
 F1 <- (2 * precision.result * sensitivity.result) / (precision.result + sensitivity.result)
 #paste ('Sensitivity with optimal threshold = ', round(sensitivity.result,3), 'threshold = ', threshold)
 #paste ('Precision with optimal threshold = ', round(precision.result,3), 'threshold = ', threshold)
@@ -146,8 +149,8 @@ feature.importance <- data.frame(importance(rf_model))
                                                                   ## OUTPUT
 ## OUTPUT
 # Prediction
-predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), prediction, created_on = Sys.time())
-metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),test_fold = c(test_fold), metrics, created_on = Sys.time())
+predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),cohort = c(cohort),test_fold = c(test_fold), prediction, created_on = Sys.time())
+metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),cohort = c(cohort),test_fold = c(test_fold), metrics, created_on = Sys.time())
 
 # Write to database
 mydb <- dbConnect(dbDriver("PostgreSQL"), 

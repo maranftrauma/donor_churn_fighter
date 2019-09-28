@@ -2,7 +2,7 @@ import subprocess
 import itertools as it
 from iteration_utilities import deepflatten
 
-folds = range(29,32)
+folds = range(1,32)
 
 # Build subprocess command
 command = 'Rscript'
@@ -14,7 +14,7 @@ hyperparameters={'mtry': ['186','15','77'],
                  'numRandomCuts':['1','2','6']}
 
 def generate_hyperparameters_combination(hyperparameters_dictionary):
-    all_hyper = sorted(hyperparameters)
+    all_hyper = list(hyperparameters.keys())
     combinations = it.product(*(hyperparameters[hyper] for hyper in all_hyper))
     return [list(comb) for comb in list(combinations)]
 
