@@ -22,15 +22,17 @@ mydb <- dbConnect(dbDriver("PostgreSQL"),
                   port = '5432')
 #import commands from bash
 args <- commandArgs()
-train_fold =  args[6]
-test_fold =  args[7]
+train_fold = args[6]
+test_fold = args[7]
 hyperparameter_1 = args[8]
 hyperparameter_2 = args[9]
 hyperparameter_3 = args[10]
 hyperparameter_4 = args[11]
 cohort = 'large'
 
+# Small Cohort
 #query <- paste('select * from folds.train_fold_',train_fold,' where collected_amount_approved > 0', sep='')
+# Large Cohort
 query <- paste('select * from folds.train_fold_',train_fold, sep='')
 
 train <- dbSendQuery(mydb, query)
