@@ -1,4 +1,4 @@
-# this is code to develop a random survival model forest to predict donors churn
+# This is code to train models for prediction donor's churn.
 # code developed by maria ines aran.
 
 

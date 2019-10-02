@@ -1,12 +1,15 @@
-# This is code to train models for prediction donor's churn.
+# This is a code to train using the selected model(best one) evaluating all the 
+# models results. 
+# Best model = Extra Tree with hyperparameters as follow
+# mtry: 15 ntree: 1500 nodesize: 2 numRandomCuts: 1	
+# Cohort = Large
 # Code developed by Maria Ines Aran.
-
 
 #####################################################################################################################################
                                                     # LIBRARIES AND CONFIGURATION 
 
 # Save errors and warnings in log file
-warning_file = file("RScriptErrors_Extratree.log", open = "wt")
+warning_file = file("RScriptErrors_Best_Model.log", open = "wt")
 sink(warning_file, type = "message")
 
 # Libraries
@@ -28,17 +31,22 @@ library(InformationValue)
 library(MLmetrics)
 library(pROC)
 library(here)
+
+
+# To make rJava work on RStudio:
+#dyn.load('/Library/Java/JavaVirtualMachines/jdk1.8.0_144.jdk/Contents/Home/jre/lib/server/libjvm.dylib')
 library(extraTrees)
 
+options(java.parameters = "-Xmx4g")
 
 # config
 options(scipen=999)
 
 # Parallel
-registerDoParallel(detectCores() - 2 )  ## registerDoMC( detectCores()-1 ) in Linux
-detectCores()
-options(rf.cores = detectCores() - 2, 
-        mc.cores = detectCores() - 2)  ## Cores for parallel processing
+#registerDoParallel(detectCores() - 2 )  ## registerDoMC( detectCores()-1 ) in Linux
+#detectCores()
+#options(rf.cores = detectCores() - 2, 
+#        mc.cores = detectCores() - 2)  ## Cores for parallel processing
 
 
 #####################################################################################################################################
@@ -69,6 +77,8 @@ train.complete <- na.omit(train)
 train.complete$churn <- as.factor(train.complete$churn)
 x = train.complete[ ,!(colnames(train.complete) == "churn")]
 y = train.complete$churn
+
+# Using Extratrees
 et_model <- extraTrees(x = x,
                        y = y,
                        mtry = hyperparameter_1,
@@ -76,11 +86,25 @@ et_model <- extraTrees(x = x,
                        nodesize = hyperparameter_3, 
                        numRandomCuts = hyperparameter_4)
 
+# Using caret - just for feature importance
+#et_grid =  expand.grid(mtry = hyperparameter_1, numRandomCuts = hyperparameter_4)
+#et_model <- train(x = x,
+#                  y = y,
+#                  method = "extraTrees", 
+#                  ntree = hyperparameter_2,
+#                  nodesize = hyperparameter_3,
+#                  tuneGrid = et_grid)
+
+
 # Print model
-et_model
+#
+
 #plot(et_model)
 
 # Predicting on train set
+# caret
+#predTrain <- predict(et_model, x, type = "prob")
+# extratrees
 predTrain <- predict(et_model, x , probability = TRUE)
 predTrain <- predTrain[,2]
 
@@ -98,7 +122,11 @@ test.complete <- na.omit(test)
 # Predicting on Validation set
 x_test = test.complete[ ,!(colnames(test.complete) == "churn")]
 y_test =test.complete$churn
+
+# Extratrees
 predValid <- predict(et_model, newdata = x_test, probability = TRUE) 
+# Caret
+#predValid <- predict(et_model, x_test, type = "prob")
 predValid <- predValid[,2]
 prediction <- data.frame(predValid, test.complete$churn)
 colnames(prediction)[colnames(prediction)=="predValid"] <- "prediction"
@@ -125,6 +153,17 @@ metrics <- data.frame(cbind(threshold,sensitivity.result,precision.result,F1,auc
 names(metrics) <- c("threshold","sencitivity", "precision","f1","auc")
 
 #####################################################################################################################################
+                                                            ##  FEATURE IMPORTANCE
+# Caret
+#feature_importance <- varImp(et_model)$importance
+
+#myvars <- c("X0")
+#new_feature_importance <- feature_importance[myvars]
+#names(new_feature_importance)[1] <- "importance"
+#feature_importance <- new_feature_importance
+#rm(new_feature_importance)
+
+#####################################################################################################################################
                                                                   ## OUTPUT
 ## OUTPUT
 # Prediction
@@ -132,35 +171,42 @@ predictions_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperpar
 metric_to_db <- cbind(algorithm = c(algorithm),hyperparameters = c(hyperparameters),cohort = c(cohort),test_fold = c(test_fold), metrics, created_on = Sys.time())
 
 # Write to database
-mydb <- dbConnect(dbDriver("PostgreSQL"), 
-                  user='postgres', 
-                  password='123456', 
-                  dbname='donaronline_boosted', 
-                  host='localhost', 
-                  port = '5432')
+#mydb <- dbConnect(dbDriver("PostgreSQL"), 
+#                  user='postgres', 
+#                  password='123456', 
+#                  dbname='donaronline_boosted', 
+#                  host='localhost', 
+#                  port = '5432')
 # Predictions
-dbWriteTable(mydb, 
-             name = c("results", "predictions"),
-             value = predictions_to_db,
-             row.names=TRUE, 
-             overwrite=FALSE,
-             append= TRUE)
+#dbWriteTable(mydb, 
+#             name = c("results", "predictions"),
+#             value = predictions_to_db,
+#             row.names=TRUE, 
+#             overwrite=FALSE,
+#             append= TRUE)
 
 # Metrics
-dbWriteTable(mydb, 
-             name = c("results", "metrics"),
-             value = metric_to_db,
-             row.names=FALSE, 
-             overwrite=FALSE,
-             append= TRUE)
+#dbWriteTable(mydb, 
+#             name = c("results", "metrics"),
+#             value = metric_to_db,
+#             row.names=FALSE, 
+#             overwrite=FALSE,
+#             append= TRUE)
+
+# Feature importance - Caret
+# Rstudio:
+#path = here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","result")
+# Terminal:
+#path = here("result")
+#write.csv(feature_importance,file.path(path, 'best_model_feature_importance.csv'), row.names = TRUE)
 
 # Model
 # save the model to disk - only final model
-#et_model_to_save = prepareForSave(et_model)
-#saveRDS(et_model_to_save,
-#        here::here(paste("models/pickles/"
-#              ,algorithm
-#              ,".rds"
-#              , sep='')))
+et_model_to_save = prepareForSave(et_model)
+saveRDS(et_model_to_save,
+        here::here(paste("models/pickles/"
+              ,"best_model"
+              ,".rds"
+              , sep='')))
 
 
