@@ -1,5 +1,6 @@
-# Donor churn
-# Donor churn in a non-profit organization in Latin America
+<img align="left" width="160" height="160" src="https://github.com/nakanotokyo/churn_donations/blob/master/references/logo.png">
+
+# Donor churn prediction
 
 ## The project 
 
