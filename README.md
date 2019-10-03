@@ -1,6 +1,6 @@
-<img align="left" width="160" height="160" src="https://github.com/nakanotokyo/churn_donations/blob/master/references/logo.png">
-
-# Donor churn prediction
+<img align="left" width="140" height="140" src="https://github.com/nakanotokyo/churn_donations/blob/master/references/logo.png" alt="Donor churn predictionicon">
+<h1 id="title1">Donor churn prediction</h1>
+<br/><br/>
 
 ## The project 
 
