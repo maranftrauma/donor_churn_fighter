@@ -5,16 +5,24 @@ Created on Sun Aug  4 19:56:42 2019
 
 @author: Maria Ines Aran
 """
+import pathlib
 import os
-os.chdir('/Users/mac/Documents/Wingu/donaronline/trabajo_final_boosteado/churn_donations/data/etl/2_create_temporal_folds')
+path = pathlib.Path.home().joinpath('Documents','Wingu','donaronline','trabajo_final_boosteado','churn_donations','data','etl','2_create_temporal_folds')
+os.chdir(path)
 from create_dates import define_dates
 from create_fold import create_fold
 from tqdm import tqdm
 from sqlalchemy import create_engine
 import datetime as dt
+from users_pass import USERPOSTGRES,PASSWORDPOSTGRES,HOST,DATABASE_NAME
 
 # Connect to db
-db_string = 'postgresql://postgres:123456@localhost:5432/donaronline_boosted'
+user = USERPOSTGRES
+password = PASSWORDPOSTGRES
+host = HOST
+database_name = DATABASE_NAME
+
+db_string = f'postgresql://{user}:{password}@localhost:{host}/{database_name}'
 con = create_engine(db_string)
 
 # Get min and max dates in the database
@@ -25,6 +33,7 @@ select
 from
     raw.donations
 """
+
 result = con.execute(query)
 for row in result:
     min_date = row.min_date

@@ -2,24 +2,29 @@
 library(RPostgreSQL)
 library(VIM)
 
-# import funcions
+# import funcions and config
+
 #to run from rstudio :
 #source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
+#source(here::here("Wingu","donaronline","trabajo_final_boosteado","churn_donations","data", "etl","3_preprocess_data_for_training","config.R"))
+
 #run from visual code
 source(here::here("data", "etl","3_preprocess_data_for_training","preprocess_functions.R"))
+source(here::here("data", "etl","3_preprocess_data_for_training","config.R"))
 
 #####################################################################################################################################
 # import data
 # disconnect all current connections to db
 #lapply(dbListConnections(dbDriver("PostgreSQL")), dbDisconnect)
 
-# train
+# db connection
 mydb <- dbConnect(dbDriver("PostgreSQL"), 
-                  user='postgres', 
-                  password='123456',
-                  dbname='donaronline_boosted', 
+                  user=USERPOSTGRES, 
+                  password=PASSWORDPOSTGRES,
+                  dbname=DATABASE_NAME, 
                   host='localhost', 
-                  port = '5432')
+                  port = HOST)
+
 #import commands from bash
 args <- commandArgs()
 train_fold = args[6]

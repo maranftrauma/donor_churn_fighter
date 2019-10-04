@@ -2,14 +2,18 @@
 #!/usr/bin/python
 # import packages
 
+# Libraries
 from sqlalchemy import create_engine
-
-# -
+from users_pass import USERPOSTGRES,PASSWORDPOSTGRES,HOST,DATABASE_NAME
 
 # Connect to db
-db_string = 'postgresql://postgres:123456@localhost:5432/donaronline_boosted'
-con = create_engine(db_string)
+user = USERPOSTGRES
+password = PASSWORDPOSTGRES
+host = HOST
+database_name = DATABASE_NAME
 
+db_string = f'postgresql://{user}:{password}@localhost:{host}/{database_name}'
+con = create_engine(db_string)
 
 # Function 
 def create_fold(snapshot_beginning,snapshot_end,snapshot_end_target_period, fold_number ):
